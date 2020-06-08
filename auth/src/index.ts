@@ -2,6 +2,12 @@ import mongoose from 'mongoose';
 
 import { app } from './app';
 
+import { resolve } from "path"
+
+import { config } from "dotenv"
+
+config({ path: resolve(__dirname, "./.env") })
+
 const start = async () => {
   if (!process.env.JWT_KEY) {
     throw new Error('JWT_KEY must be defined');

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: osmangoninahid/client
+          image: mirajehossain/client
 ---
 apiVersion: v1
 kind: Service

@@ -5,6 +5,10 @@ import { TicketCreatedListener } from './events/listeners/ticket-created-listene
 import { TicketUpdatedListener } from './events/listeners/ticket-updated-listener';
 import { ExpirationCompleteListener } from './events/listeners/expiration-complete-listener';
 import { PaymentCreatedListener } from './events/listeners/payment-created-listener';
+import { resolve } from "path"
+import { config } from "dotenv";
+
+config({ path: resolve(__dirname, "./.env") })
 
 const start = async () => {
   if (!process.env.JWT_KEY) {
@@ -51,8 +55,8 @@ const start = async () => {
     console.error(err);
   }
 
-  app.listen(3000, () => {
-    console.log('Listening on port 3000!!!!!!!!');
+  app.listen(3001, () => {
+    console.log('Listening on port 3001!!!!!!!!');
   });
 };
 

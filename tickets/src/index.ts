@@ -3,6 +3,10 @@ import { app } from './app';
 import { natsWrapper } from './nats-wrapper';
 import { OrderCreatedListener } from './events/listeners/order-created-listener';
 import { OrderCancelledListener } from './events/listeners/order-cancelled-listener';
+import { resolve } from "path"
+import { config } from "dotenv";
+
+config({ path: resolve(__dirname, "./.env") })
 
 const start = async () => {
   if (!process.env.JWT_KEY) {
@@ -47,8 +51,8 @@ const start = async () => {
     console.error(err);
   }
 
-  app.listen(3000, () => {
-    console.log('Listening on port 3000!!!!!!!!');
+  app.listen(3002, () => {
+    console.log('Listening on port 3002!!!!!!!!');
   });
 };
 

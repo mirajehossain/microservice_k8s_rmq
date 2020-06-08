@@ -1,5 +1,5 @@
 {
-  "name": "@etickets/common",
+  "name": "@evaly/common",
   "version": "1.0.24",
   "description": "",
   "main": "./build/index.js",
