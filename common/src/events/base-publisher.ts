@@ -1,28 +1,23 @@
-import { Stan } from 'node-nats-streaming';
-import { Subjects } from './subjects';
-
+import { Exchange } from './exchange';
+import { Connection, Channel } from 'amqplib';
+import {RoutingKey} from "./routing-key";
 interface Event {
-  subject: Subjects;
+  routingKey: RoutingKey;
   data: any;
 }
 
 export abstract class Publisher<T extends Event> {
-  abstract subject: T['subject'];
-  protected client: Stan;
+  abstract routingKey: T['routingKey'];
+  abstract exchange: Exchange;
+  protected connection: Connection | undefined;
 
-  constructor(client: Stan) {
-    this.client = client;
+  constructor(connection: Connection) {
+    this.connection = connection;
   }
 
-  publish(data: T['data']): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.client.publish(this.subject, JSON.stringify(data), (err) => {
-        if (err) {
-          return reject(err);
-        }
-        console.log('Event published to subject', this.subject);
-        resolve();
-      });
-    });
+
+  async publish(channel: Channel, data: T['data']): Promise<void> {
+    await channel.assertExchange(this.exchange, 'topic', { durable: false });
+    channel.publish(this.exchange, this.routingKey, Buffer.from(JSON.stringify(data)))
   }
 }

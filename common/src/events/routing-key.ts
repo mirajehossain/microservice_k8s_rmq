@@ -1,4 +1,4 @@
-export enum Subjects {
+export enum RoutingKey {
   TicketCreated = 'ticket.created',
   TicketUpdated = 'ticket.updated',
 

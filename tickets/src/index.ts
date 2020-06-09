@@ -5,6 +5,9 @@ import { OrderCreatedListener } from './events/listeners/order-created-listener'
 import { OrderCancelledListener } from './events/listeners/order-cancelled-listener';
 import { resolve } from "path"
 import { config } from "dotenv";
+import {rmqWrapper} from "./rmq-wrapper";
+import {Channel} from "amqplib";
+import {TicketCreatedListener} from "./events/listeners/ticket-created-listener";
 
 config({ path: resolve(__dirname, "./.env") })
 
@@ -15,31 +18,23 @@ const start = async () => {
   if (!process.env.MONGO_URI) {
     throw new Error('MONGO_URI must be defined');
   }
-  if (!process.env.NATS_CLIENT_ID) {
-    throw new Error('NATS_CLIENT_ID must be defined');
-  }
-  if (!process.env.NATS_URL) {
-    throw new Error('NATS_URL must be defined');
-  }
-  if (!process.env.NATS_CLUSTER_ID) {
-    throw new Error('NATS_CLUSTER_ID must be defined');
+  if (!process.env.MQ_URL) {
+    throw new Error('MQ_URL must be defined');
   }
 
   try {
-    await natsWrapper.connect(
-      process.env.NATS_CLUSTER_ID,
-      process.env.NATS_CLIENT_ID,
-      process.env.NATS_URL
+    await rmqWrapper.connect(
+      process.env.MQ_URL
     );
-    natsWrapper.client.on('close', () => {
-      console.log('NATS connection closed!');
-      process.exit();
-    });
-    process.on('SIGINT', () => natsWrapper.client.close());
-    process.on('SIGTERM', () => natsWrapper.client.close());
 
-    new OrderCreatedListener(natsWrapper.client).listen();
-    new OrderCancelledListener(natsWrapper.client).listen();
+    process.on('SIGINT', () => rmqWrapper.connection?.close());
+    process.on('SIGTERM', () => rmqWrapper.connection?.close());
+
+    const channel: Channel = await rmqWrapper.connection.createChannel();
+    // await new OrderCreatedListener(rmqWrapper.connection).listen(channel);
+    await new TicketCreatedListener(rmqWrapper.connection).listen(channel);
+
+    // new OrderCancelledListener(natsWrapper.client).listen();
 
     await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
