@@ -3,15 +3,13 @@ import { body } from 'express-validator';
 import { requireAuth, validateRequest } from '@evaly/common';
 import { Ticket } from '../models/ticket';
 import { TicketCreatedPublisher } from '../events/publishers/ticket-created-publisher';
-import { natsWrapper } from '../nats-wrapper';
-import {mquery} from "mongoose";
 import {rmqWrapper} from "../rmq-wrapper";
 
 const router = express.Router();
 
 router.post(
   '/api/tickets',
-  // requireAuth,
+  requireAuth,
   [
     body('title').not().isEmpty().withMessage('Title is required'),
     body('price')
@@ -25,8 +23,8 @@ router.post(
     const ticket = Ticket.build({
       title,
       price,
-      // userId: req.currentUser!.id,
-      userId: "5ed8b52a557cfaaf48030a4c",
+      userId: req.currentUser!.id,
+      // userId: "5ed8b52a557cfaaf48030a4c",
     });
     await ticket.save();
     let channel = await rmqWrapper.connection.createChannel();
